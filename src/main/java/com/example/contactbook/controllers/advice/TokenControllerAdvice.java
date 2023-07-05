@@ -1,6 +1,6 @@
 package com.example.contactbook.controllers.advice;
 
-import com.example.contactbook.dto.response.TokenRefreshErrorMessage;
+import com.example.contactbook.dto.token_refresh.TokenRefreshErrorMessage;
 import com.example.contactbook.exceptions.TokenRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

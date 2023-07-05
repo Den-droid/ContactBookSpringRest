@@ -25,10 +25,6 @@ public class Role {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public EnumRole getName() {
         return name;
     }

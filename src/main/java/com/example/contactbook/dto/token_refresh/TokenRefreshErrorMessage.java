@@ -1,4 +1,4 @@
-package com.example.contactbook.dto.response;
+package com.example.contactbook.dto.token_refresh;
 
 import java.time.LocalDate;
 

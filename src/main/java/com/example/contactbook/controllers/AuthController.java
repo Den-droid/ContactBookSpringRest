@@ -1,12 +1,11 @@
 package com.example.contactbook.controllers;
 
-import com.example.contactbook.dto.request.LoginRequest;
-import com.example.contactbook.dto.request.SignupRequest;
-import com.example.contactbook.dto.request.TokenRefreshRequest;
-import com.example.contactbook.dto.response.JwtResponse;
-import com.example.contactbook.dto.response.MessageResponse;
-import com.example.contactbook.dto.response.TokenRefreshResponse;
-import com.example.contactbook.exceptions.UsernameAlreadyExistsException;
+import com.example.contactbook.dto.auth.LoginDto;
+import com.example.contactbook.dto.auth.SignupDto;
+import com.example.contactbook.dto.token_refresh.TokenRefreshRequestDto;
+import com.example.contactbook.dto.auth.JwtDto;
+import com.example.contactbook.dto.MessageResponseDto;
+import com.example.contactbook.dto.token_refresh.TokenRefreshResponseDto;
 import com.example.contactbook.services.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,24 +21,25 @@ public class AuthController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        JwtResponse jwtResponse = authenticationService.authenticateUser(loginRequest);
-        return ResponseEntity.ok(jwtResponse);
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginDto loginDto) {
+        JwtDto jwtDto = authenticationService.authenticateUser(loginDto);
+        return ResponseEntity.ok(jwtDto);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@RequestBody SignupDto signUpDto) {
         try {
-            MessageResponse messageResponse = authenticationService.registerUser(signUpRequest);
-            return ResponseEntity.ok(messageResponse);
-        } catch (UsernameAlreadyExistsException exception) {
-            return ResponseEntity.badRequest().body(new MessageResponse(exception.getMessage()));
+            MessageResponseDto messageResponseDto = authenticationService.registerUser(signUpDto);
+            return ResponseEntity.ok(messageResponseDto);
+        } catch (RuntimeException exception) {
+            return ResponseEntity.badRequest().body(new MessageResponseDto(exception.getMessage()));
         }
     }
 
     @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest tokenRefreshRequest) {
-        TokenRefreshResponse messageResponse = authenticationService.refreshToken(tokenRefreshRequest);
+    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
+        TokenRefreshResponseDto messageResponse =
+                authenticationService.refreshToken(tokenRefreshRequestDto);
         return ResponseEntity.ok(messageResponse);
     }
 }
