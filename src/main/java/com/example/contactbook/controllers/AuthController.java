@@ -1,13 +1,13 @@
 package com.example.contactbook.controllers;
 
+import com.example.contactbook.dto.MessageResponseDto;
+import com.example.contactbook.dto.auth.JwtDto;
 import com.example.contactbook.dto.auth.LoginDto;
 import com.example.contactbook.dto.auth.SignupDto;
 import com.example.contactbook.dto.token_refresh.TokenRefreshRequestDto;
-import com.example.contactbook.dto.auth.JwtDto;
-import com.example.contactbook.dto.MessageResponseDto;
 import com.example.contactbook.dto.token_refresh.TokenRefreshResponseDto;
+import com.example.contactbook.exceptions.UserException;
 import com.example.contactbook.services.AuthenticationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
+
+    public AuthController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginDto loginDto) {
@@ -38,8 +41,12 @@ public class AuthController {
 
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
-        TokenRefreshResponseDto messageResponse =
-                authenticationService.refreshToken(tokenRefreshRequestDto);
-        return ResponseEntity.ok(messageResponse);
+        try {
+            TokenRefreshResponseDto tokenRefreshResponseDto =
+                    authenticationService.refreshToken(tokenRefreshRequestDto);
+            return ResponseEntity.ok(tokenRefreshResponseDto);
+        } catch (UserException e) {
+            return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
+        }
     }
 }

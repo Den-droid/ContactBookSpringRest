@@ -15,11 +15,15 @@ import java.util.stream.Collectors;
 
 @Component
 public class ContactMapper {
-    @Autowired
-    private PhoneNumberValidator phoneNumberValidator;
+    private final PhoneNumberValidator phoneNumberValidator;
 
-    @Autowired
-    private EmailValidator emailValidator;
+    private final EmailValidator emailValidator;
+
+    public ContactMapper(PhoneNumberValidator phoneNumberValidator,
+                         EmailValidator emailValidator) {
+        this.phoneNumberValidator = phoneNumberValidator;
+        this.emailValidator = emailValidator;
+    }
 
     public Contact mapContact(String contactName, List<String> emails, List<String> phoneNumbers) {
         Contact contact = new Contact();

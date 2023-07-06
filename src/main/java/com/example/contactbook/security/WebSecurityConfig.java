@@ -2,6 +2,7 @@ package com.example.contactbook.security;
 
 import com.example.contactbook.security.jwt.AuthEntryPointJwt;
 import com.example.contactbook.security.jwt.AuthTokenFilter;
+import com.example.contactbook.security.jwt.JwtUtils;
 import com.example.contactbook.security.user_details.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,15 +21,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+    private final AuthEntryPointJwt unauthorizedHandler;
+
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
+                             AuthEntryPointJwt unauthorizedHandler) {
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
+        return new AuthTokenFilter(new JwtUtils(), userDetailsService);
     }
 
     @Bean

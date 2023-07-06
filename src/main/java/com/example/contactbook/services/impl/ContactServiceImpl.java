@@ -10,7 +10,6 @@ import com.example.contactbook.mappers.ContactMapper;
 import com.example.contactbook.repositories.UserRepository;
 import com.example.contactbook.security.user_details.UserDetailsImpl;
 import com.example.contactbook.services.ContactService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +18,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContactServiceImpl implements ContactService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ContactMapper contactMapper;
+    private final ContactMapper contactMapper;
+
+    public ContactServiceImpl(UserRepository userRepository,
+                              ContactMapper contactMapper) {
+        this.userRepository = userRepository;
+        this.contactMapper = contactMapper;
+    }
 
     public MessageResponseDto addContact(ContactDto contactDto) {
         UserDetailsImpl userDetails =

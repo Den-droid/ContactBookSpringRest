@@ -3,7 +3,6 @@ package com.example.contactbook.controllers;
 import com.example.contactbook.dto.ContactDto;
 import com.example.contactbook.dto.MessageResponseDto;
 import com.example.contactbook.services.ContactService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +12,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/contacts")
 public class ContactController {
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
+
+    public ContactController(ContactService contactService) {
+        this.contactService = contactService;
+    }
 
     @PostMapping()
     @PreAuthorize("hasRole('USER')")

@@ -1,6 +1,37 @@
 package com.example.contactbook.dto.auth;
 
-import java.util.List;
+public class JwtDto {
+    String accessToken;
+    String refreshToken;
+    String username;
 
-public record JwtDto(String token, String refreshToken, String username, List<String> roles){
+    public JwtDto(String accessToken, String refreshToken, String username) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.username = username;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

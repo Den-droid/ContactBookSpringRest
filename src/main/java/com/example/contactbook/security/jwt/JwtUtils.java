@@ -1,6 +1,6 @@
 package com.example.contactbook.security.jwt;
 
-import com.example.contactbook.security.user_details.UserDetailsImpl;
+import com.example.contactbook.exceptions.TokenRefreshException;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,29 +13,69 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${app.jwt.secret}")
-    private String jwtSecret;
+    @Value("${app.jwt.access-token-secret}")
+    private String accessTokenSecret;
+
+    @Value("${app.jwt.refresh-token-secret}")
+    private String refreshTokenSecret;
 
     @Value("${app.jwt.expiration-ms}")
-    private int jwtExpirationMs;
+    private long accessTokenExpirationMs;
 
-    public String generateJwtToken(UserDetailsImpl userPrincipal) {
-        return generateTokenFromUsername(userPrincipal.getUsername());
+    @Value("${app.jwt.refresh-expiration-ms}")
+    private long refreshTokenExpirationMs;
+
+    public String generateAccessToken(String username) {
+        return generateTokenFromUsername(username, accessTokenSecret, accessTokenExpirationMs);
     }
 
-    public String generateTokenFromUsername(String username) {
+    public String generateRefreshToken(String username) {
+        return generateTokenFromUsername(username, refreshTokenSecret, refreshTokenExpirationMs);
+    }
+
+    public String generateAccessToken(String username, long expirationMs) {
+        return generateTokenFromUsername(username, accessTokenSecret, expirationMs);
+    }
+
+    public String generateRefreshToken(String username, long expirationMs) {
+        return generateTokenFromUsername(username, refreshTokenSecret, expirationMs);
+    }
+
+    public String generateTokenFromUsername(String username, String secret, long expirationMs) {
         return Jwts.builder().setSubject(username).setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)).signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .setExpiration(new Date((new Date()).getTime() + expirationMs))
+                .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+    public String getUserNameFromAccessToken(String token) {
+        return getUserNameFromToken(token, accessTokenSecret);
     }
 
-    public boolean validateJwtToken(String authToken) {
+    public String getUserNameFromRefreshToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            return getUserNameFromToken(token, refreshTokenSecret);
+        } catch (Exception e) {
+            throw new TokenRefreshException(token, "Refresh token is invalid! " +
+                    "Please sign in again to get new!");
+        }
+    }
+
+    public String getUserNameFromToken(String token, String secret) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public boolean validateAccessToken(String accessToken) {
+        return validateToken(accessToken, accessTokenSecret);
+    }
+
+    public boolean validateRefreshToken(String refreshToken) {
+        return validateToken(refreshToken, refreshTokenSecret);
+    }
+
+    private boolean validateToken(String token, String secret) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
         } catch (SignatureException e) {
             logger.error("Invalid JWT signature: {}", e.getMessage());

@@ -21,6 +21,8 @@ public class User {
     @Column(length = 100)
     private String password;
 
+    private String refreshToken;
+
     @ManyToMany
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -84,6 +86,14 @@ public class User {
         this.contactList = contactList;
     }
 
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     public void addContact(Contact contact) {
         boolean notExists = contactList.stream()
                 .noneMatch(x -> x.getContactName().equals(contact.getContactName()));
@@ -137,5 +147,4 @@ public class User {
             throw new ContactException(contactName, "Contact with such name doesn't exist!");
         }
     }
-
 }
