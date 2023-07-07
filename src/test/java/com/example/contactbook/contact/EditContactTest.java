@@ -88,7 +88,7 @@ public class EditContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        assertThrows(ContactException.class, () -> contactService.editContact(
+        assertThrows(ContactException.class, () -> contactService.edit(
                 1_000_000L, contactDto
         ));
     }
@@ -107,7 +107,7 @@ public class EditContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        assertThrows(ContactException.class, () -> contactService.editContact(
+        assertThrows(ContactException.class, () -> contactService.edit(
                 -1L, contactDto
         ));
     }
@@ -129,7 +129,7 @@ public class EditContactTest {
         User user = userRepository.findByUsername("user").get();
         long id = user.getContactList().get(0).getId();
 
-        assertThrows(ContactException.class, () -> contactService.editContact(
+        assertThrows(ContactException.class, () -> contactService.edit(
                 id, contactDto
         ));
     }
@@ -148,7 +148,7 @@ public class EditContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        contactService.addContact(contactDto);
+        contactService.add(contactDto);
 
         User user = userRepository.findByUsername("user2").get();
         long id = user.getContactList().get(0).getId();
@@ -156,7 +156,7 @@ public class EditContactTest {
         loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.editContact(
+        assertThrows(ContactException.class, () -> contactService.edit(
                 id, contactDto
         ));
     }
@@ -179,7 +179,7 @@ public class EditContactTest {
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
         MessageResponseDto actualResponse =
-                contactService.editContact(existedContact.getId(), contactDto);
+                contactService.edit(existedContact.getId(), contactDto);
         MessageResponseDto expectedResponse = new MessageResponseDto("User edited successfully!");
 
         assertEquals(actualResponse, expectedResponse);

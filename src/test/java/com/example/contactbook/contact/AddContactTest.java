@@ -91,7 +91,7 @@ public class AddContactTest {
 
         ContactDto contactDto = new ContactDto("Ivanko", emails, phoneNumbers);
 
-        assertThrows(ContactException.class, () -> contactService.addContact(contactDto));
+        assertThrows(ContactException.class, () -> contactService.add(contactDto));
     }
 
     @Test
@@ -108,7 +108,7 @@ public class AddContactTest {
 
         ContactDto contactDto = new ContactDto("      ", emails, phoneNumbers);
 
-        assertThrows(ContactException.class, () -> contactService.addContact(contactDto));
+        assertThrows(ContactException.class, () -> contactService.add(contactDto));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class AddContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        assertThrows(EmailFormatException.class, () -> contactService.addContact(contactDto));
+        assertThrows(EmailFormatException.class, () -> contactService.add(contactDto));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class AddContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        assertThrows(PhoneNumberFormatException.class, () -> contactService.addContact(contactDto));
+        assertThrows(PhoneNumberFormatException.class, () -> contactService.add(contactDto));
     }
 
     @Test
@@ -159,7 +159,7 @@ public class AddContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        MessageResponseDto actualResponse = contactService.addContact(contactDto);
+        MessageResponseDto actualResponse = contactService.add(contactDto);
         MessageResponseDto expectedResponse = new MessageResponseDto("User added successfully!");
 
         assertEquals(actualResponse, expectedResponse);
@@ -179,7 +179,7 @@ public class AddContactTest {
 
         ContactDto contactDto = new ContactDto("Ivanko", emails, phoneNumbers);
 
-        MessageResponseDto actualResponse = contactService.addContact(contactDto);
+        MessageResponseDto actualResponse = contactService.add(contactDto);
         MessageResponseDto expectedResponse = new MessageResponseDto("User added successfully!");
 
         assertEquals(actualResponse, expectedResponse);

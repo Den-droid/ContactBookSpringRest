@@ -6,13 +6,13 @@ import com.example.contactbook.dto.MessageResponseDto;
 import java.util.List;
 
 public interface ContactService {
-    MessageResponseDto addContact(ContactDto contactDto);
+    MessageResponseDto add(ContactDto contactDto);
 
-    MessageResponseDto editContact(Long id, ContactDto contactDto);
+    MessageResponseDto edit(Long id, ContactDto contactDto);
 
-    MessageResponseDto deleteContact(Long contactId);
+    MessageResponseDto deleteById(Long contactId);
 
-    MessageResponseDto deleteContact(String contactName);
+    MessageResponseDto deleteByName(String contactName);
 
-    List<ContactDto> getAllContacts();
+    List<ContactDto> getAll();
 }

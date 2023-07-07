@@ -10,26 +10,27 @@ import java.util.Map;
 public class PhoneNumberValidator {
     @Value("${app.phone-number.validation-api-key}")
     private String validationApiKey;
-
-    private final String baseUrl = "http://apilayer.net/api/validate?access_key=" + validationApiKey;
-
+    private final String baseUrl = "http://apilayer.net/api/validate?access_key=";
     private final String regex =
             "^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$"
                     + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$"
                     + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$";
 
     public boolean validateWhole(String number) {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String requestUrl = baseUrl + "&number=" + number + "&country_code=&format=1";
-//
-//        Map<String, Object> res = restTemplate.getForObject(requestUrl, Map.class);
-//
-//        if (res != null) {
-//            return (boolean) res.getOrDefault("valid", false);
-//        } else {
-        return number.matches(regex);
-//        }
+        boolean validFormat = number.matches(regex);
 
-//        return true;
+        if (validFormat) {
+            RestTemplate restTemplate = new RestTemplate();
+            String requestUrl = baseUrl + validationApiKey +
+                    "&number=" + number + "&country_code=&format=1";
+
+            Map<String, Object> res = restTemplate.getForObject(requestUrl, Map.class);
+
+            if (res != null && res.containsKey("valid")) {
+                return (boolean) res.getOrDefault("valid", false);
+            }
+        }
+
+        return validFormat;
     }
 }

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Component
 public class ContactMapper {
     private final PhoneNumberValidator phoneNumberValidator;
-
     private final EmailValidator emailValidator;
 
     public ContactMapper(PhoneNumberValidator phoneNumberValidator,

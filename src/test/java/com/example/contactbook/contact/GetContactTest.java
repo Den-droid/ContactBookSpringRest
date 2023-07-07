@@ -87,7 +87,7 @@ public class GetContactTest {
         LoginDto loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        List<ContactDto> actualContacts = contactService.getAllContacts();
+        List<ContactDto> actualContacts = contactService.getAll();
 
         assertEquals(actualContacts, expectedContacts);
     }

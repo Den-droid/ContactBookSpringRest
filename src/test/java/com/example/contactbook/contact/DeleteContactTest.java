@@ -80,7 +80,7 @@ public class DeleteContactTest {
         LoginDto loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.deleteContact(
+        assertThrows(ContactException.class, () -> contactService.deleteById(
                 1_000_000L
         ));
     }
@@ -91,7 +91,7 @@ public class DeleteContactTest {
         LoginDto loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.deleteContact(
+        assertThrows(ContactException.class, () -> contactService.deleteById(
                 -1L
         ));
     }
@@ -110,7 +110,7 @@ public class DeleteContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        contactService.addContact(contactDto);
+        contactService.add(contactDto);
 
         User user = userRepository.findByUsername("user2").get();
         long id = user.getContactList().get(0).getId();
@@ -118,7 +118,7 @@ public class DeleteContactTest {
         loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.deleteContact(
+        assertThrows(ContactException.class, () -> contactService.deleteById(
                 id
         ));
     }
@@ -129,7 +129,7 @@ public class DeleteContactTest {
         LoginDto loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.deleteContact(
+        assertThrows(ContactException.class, () -> contactService.deleteByName(
                 "dfnoshfndsdafsd"
         ));
     }
@@ -140,7 +140,7 @@ public class DeleteContactTest {
         LoginDto loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.deleteContact(
+        assertThrows(ContactException.class, () -> contactService.deleteByName(
                 "        "
         ));
     }
@@ -159,7 +159,7 @@ public class DeleteContactTest {
 
         ContactDto contactDto = new ContactDto("Ivan", emails, phoneNumbers);
 
-        contactService.addContact(contactDto);
+        contactService.add(contactDto);
 
         User user = userRepository.findByUsername("user2").get();
         String contactName = user.getContactList().get(0).getContactName();
@@ -167,7 +167,7 @@ public class DeleteContactTest {
         loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
 
-        assertThrows(ContactException.class, () -> contactService.deleteContact(
+        assertThrows(ContactException.class, () -> contactService.deleteByName(
                 contactName
         ));
     }
@@ -182,7 +182,7 @@ public class DeleteContactTest {
         Contact existedContact = user.getContactList().get(0);
 
         MessageResponseDto actualResponse =
-                contactService.deleteContact(existedContact.getId());
+                contactService.deleteById(existedContact.getId());
         MessageResponseDto expectedResponse = new MessageResponseDto("User deleted successfully!");
 
         assertEquals(actualResponse, expectedResponse);
@@ -198,7 +198,7 @@ public class DeleteContactTest {
         Contact existedContact = user.getContactList().get(0);
 
         MessageResponseDto actualResponse =
-                contactService.deleteContact(existedContact.getContactName());
+                contactService.deleteByName(existedContact.getContactName());
         MessageResponseDto expectedResponse = new MessageResponseDto("User deleted successfully!");
 
         assertEquals(actualResponse, expectedResponse);

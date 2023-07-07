@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
     private final EmailValidator emailValidator;
-
     private final PasswordEncoder encoder;
 
     public UserMapper(EmailValidator emailValidator,

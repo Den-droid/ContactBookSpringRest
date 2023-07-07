@@ -22,7 +22,7 @@ public class ContactController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> addContact(@RequestBody ContactDto contactDto) {
         try {
-            MessageResponseDto messageResponseDto = contactService.addContact(contactDto);
+            MessageResponseDto messageResponseDto = contactService.add(contactDto);
             return ResponseEntity.ok(messageResponseDto);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
@@ -34,7 +34,7 @@ public class ContactController {
     public ResponseEntity<?> editContact(@RequestBody ContactDto contactDto,
                                          @PathVariable Long id) {
         try {
-            MessageResponseDto messageResponseDto = contactService.editContact(id, contactDto);
+            MessageResponseDto messageResponseDto = contactService.edit(id, contactDto);
             return ResponseEntity.ok(messageResponseDto);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
@@ -45,7 +45,7 @@ public class ContactController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteContact(@PathVariable Long id) {
         try {
-            MessageResponseDto messageResponseDto = contactService.deleteContact(id);
+            MessageResponseDto messageResponseDto = contactService.deleteById(id);
             return ResponseEntity.ok(messageResponseDto);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
@@ -56,7 +56,7 @@ public class ContactController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteContact(@RequestParam String name) {
         try {
-            MessageResponseDto messageResponseDto = contactService.deleteContact(name);
+            MessageResponseDto messageResponseDto = contactService.deleteByName(name);
             return ResponseEntity.ok(messageResponseDto);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
@@ -66,7 +66,7 @@ public class ContactController {
     @GetMapping()
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<ContactDto>> getAllContacts() {
-        List<ContactDto> contacts = contactService.getAllContacts();
+        List<ContactDto> contacts = contactService.getAll();
         return ResponseEntity.ok(contacts);
     }
 }

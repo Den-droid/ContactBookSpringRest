@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @Service
 public class ContactServiceImpl implements ContactService {
     private final UserRepository userRepository;
-
     private final ContactMapper contactMapper;
 
     public ContactServiceImpl(UserRepository userRepository,
@@ -29,7 +28,8 @@ public class ContactServiceImpl implements ContactService {
         this.contactMapper = contactMapper;
     }
 
-    public MessageResponseDto addContact(ContactDto contactDto) {
+    @Override
+    public MessageResponseDto add(ContactDto contactDto) {
         UserDetailsImpl userDetails =
                 (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
@@ -47,7 +47,8 @@ public class ContactServiceImpl implements ContactService {
         return new MessageResponseDto("User added successfully!");
     }
 
-    public MessageResponseDto editContact(Long contactId, ContactDto contactDto) {
+    @Override
+    public MessageResponseDto edit(Long contactId, ContactDto contactDto) {
         if (contactId < 1) {
             throw new ContactException(contactId, "Contact id less than zero!");
         }
@@ -69,7 +70,8 @@ public class ContactServiceImpl implements ContactService {
         return new MessageResponseDto("User edited successfully!");
     }
 
-    public MessageResponseDto deleteContact(Long contactId) {
+    @Override
+    public MessageResponseDto deleteById(Long contactId) {
         if (contactId < 1) {
             throw new ContactException(contactId, "Contact id less than zero!");
         }
@@ -85,7 +87,8 @@ public class ContactServiceImpl implements ContactService {
         return new MessageResponseDto("User deleted successfully!");
     }
 
-    public MessageResponseDto deleteContact(String contactName) {
+    @Override
+    public MessageResponseDto deleteByName(String contactName) {
         if (contactName.isEmpty() || contactName.isBlank()) {
             throw new ContactException(contactName, "Wrong contact name format!");
         }
@@ -101,7 +104,8 @@ public class ContactServiceImpl implements ContactService {
         return new MessageResponseDto("User deleted successfully!");
     }
 
-    public List<ContactDto> getAllContacts() {
+    @Override
+    public List<ContactDto> getAll() {
         UserDetailsImpl userDetails =
                 (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
