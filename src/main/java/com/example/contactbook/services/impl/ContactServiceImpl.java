@@ -6,6 +6,7 @@ import com.example.contactbook.entities.Contact;
 import com.example.contactbook.entities.Email;
 import com.example.contactbook.entities.PhoneNumber;
 import com.example.contactbook.entities.User;
+import com.example.contactbook.exceptions.ContactException;
 import com.example.contactbook.mappers.ContactMapper;
 import com.example.contactbook.repositories.UserRepository;
 import com.example.contactbook.security.user_details.UserDetailsImpl;
@@ -46,7 +47,11 @@ public class ContactServiceImpl implements ContactService {
         return new MessageResponseDto("User added successfully!");
     }
 
-    public MessageResponseDto editContact(Long id, ContactDto contactDto) {
+    public MessageResponseDto editContact(Long contactId, ContactDto contactDto) {
+        if (contactId < 1) {
+            throw new ContactException(contactId, "Contact id less than zero!");
+        }
+
         UserDetailsImpl userDetails =
                 (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
@@ -58,13 +63,17 @@ public class ContactServiceImpl implements ContactService {
                 contactDto.phoneNumbers()
         );
 
-        user.editContact(id, editedContact);
+        user.editContact(contactId, editedContact);
         userRepository.save(user);
 
         return new MessageResponseDto("User edited successfully!");
     }
 
     public MessageResponseDto deleteContact(Long contactId) {
+        if (contactId < 1) {
+            throw new ContactException(contactId, "Contact id less than zero!");
+        }
+
         UserDetailsImpl userDetails =
                 (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
@@ -77,6 +86,10 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public MessageResponseDto deleteContact(String contactName) {
+        if (contactName.isEmpty() || contactName.isBlank()) {
+            throw new ContactException(contactName, "Wrong contact name format!");
+        }
+
         UserDetailsImpl userDetails =
                 (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();

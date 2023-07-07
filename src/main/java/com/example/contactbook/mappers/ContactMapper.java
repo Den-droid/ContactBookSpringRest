@@ -3,6 +3,7 @@ package com.example.contactbook.mappers;
 import com.example.contactbook.entities.Contact;
 import com.example.contactbook.entities.Email;
 import com.example.contactbook.entities.PhoneNumber;
+import com.example.contactbook.exceptions.ContactException;
 import com.example.contactbook.exceptions.EmailFormatException;
 import com.example.contactbook.exceptions.PhoneNumberFormatException;
 import com.example.contactbook.validators.EmailValidator;
@@ -26,6 +27,10 @@ public class ContactMapper {
 
     public Contact mapContact(String contactName, List<String> emails, List<String> phoneNumbers) {
         Contact contact = new Contact();
+
+        if (contactName.isEmpty() || contactName.isBlank()) {
+            throw new ContactException(contactName, "Wrong contact name format!");
+        }
 
         contact.setContactName(contactName);
         contact.setEmails(emails.stream()

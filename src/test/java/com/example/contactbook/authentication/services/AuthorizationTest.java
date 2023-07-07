@@ -1,14 +1,11 @@
 package com.example.contactbook.authentication.services;
 
-import com.example.contactbook.dto.auth.JwtDto;
-import com.example.contactbook.dto.auth.LoginDto;
 import com.example.contactbook.entities.Role;
 import com.example.contactbook.entities.User;
 import com.example.contactbook.entities.enums.EnumRole;
 import com.example.contactbook.repositories.RoleRepository;
 import com.example.contactbook.repositories.UserRepository;
 import com.example.contactbook.security.jwt.JwtUtils;
-import com.example.contactbook.services.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +39,6 @@ public class AuthorizationTest {
 
     @Autowired
     private PasswordEncoder encoder;
-
-    @Autowired
-    private AuthenticationService authenticationService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -90,12 +84,11 @@ public class AuthorizationTest {
 
     @Test
     void gettingContactsSuccess() throws Exception {
-        LoginDto loginDto = new LoginDto("user", "password");
-        JwtDto jwtDto = authenticationService.authenticateUser(loginDto);
+        String token = jwtUtils.generateAccessToken("user");
 
         mvc.perform(MockMvcRequestBuilders
                         .get("/api/contacts")
-                        .header("Authorization", "Bearer " + jwtDto.accessToken()))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
 }
