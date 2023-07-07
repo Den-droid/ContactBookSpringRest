@@ -71,24 +71,6 @@ public class TokenRefreshTest {
     }
 
     @Test
-    public void refreshSuccess_RegularCase() throws Exception {
-        LoginDto loginDto = new LoginDto("user", "password");
-        JwtDto jwtDto = authenticationService.authenticateUser(loginDto);
-
-        TokenRefreshRequestDto tokenRefreshRequestDto =
-                new TokenRefreshRequestDto(jwtDto.refreshToken());
-        String jsonBody = objectMapper.writeValueAsString(tokenRefreshRequestDto);
-
-        mvc.perform(post("/api/auth/refreshToken")
-                        .content(jsonBody)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken").isString())
-                .andExpect(jsonPath("$.refreshToken").isString());
-    }
-
-    @Test
     public void refreshFailure_RefreshTokenNotInDatabase() throws Exception {
         LoginDto loginDto = new LoginDto("user", "password");
         authenticationService.authenticateUser(loginDto);
@@ -118,5 +100,23 @@ public class TokenRefreshTest {
                         .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void refreshSuccess_RegularCase() throws Exception {
+        LoginDto loginDto = new LoginDto("user", "password");
+        JwtDto jwtDto = authenticationService.authenticateUser(loginDto);
+
+        TokenRefreshRequestDto tokenRefreshRequestDto =
+                new TokenRefreshRequestDto(jwtDto.refreshToken());
+        String jsonBody = objectMapper.writeValueAsString(tokenRefreshRequestDto);
+
+        mvc.perform(post("/api/auth/refreshToken")
+                        .content(jsonBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.accessToken").isString())
+                .andExpect(jsonPath("$.refreshToken").isString());
     }
 }

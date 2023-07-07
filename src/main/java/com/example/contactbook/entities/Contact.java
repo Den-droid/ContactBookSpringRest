@@ -16,11 +16,11 @@ public class Contact {
     private String contactName;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="contact_id", referencedColumnName="id")
+    @JoinColumn(name = "contact_id", referencedColumnName = "id")
     private Set<Email> emails = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="contact_id", referencedColumnName="id")
+    @JoinColumn(name = "contact_id", referencedColumnName = "id")
     private Set<PhoneNumber> phoneNumbers = new HashSet<>();
 
     public Long getId() {

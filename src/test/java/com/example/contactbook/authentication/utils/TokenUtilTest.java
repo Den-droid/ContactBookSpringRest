@@ -14,20 +14,20 @@ public class TokenUtilTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    void cornerCases(String token) {
+    void validateTokenFalse_cornerCases(String token) {
         JwtUtils jwtUtils = new JwtUtils();
         assertThat(jwtUtils.validateAccessToken(token)).isFalse();
     }
 
     @Test
-    void testExpirationOfToken() {
+    void validateTokenFalse_tokenIsExpired() {
         JwtUtils jwtUtils = new JwtUtils();
         String token = jwtUtils.generateTokenFromUsername("user", accessTokenSecret, -1);
         assertThat(jwtUtils.validateAccessToken(token)).isFalse();
     }
 
     @Test
-    void testsSafeExtractionOfSubjectFromToken() {
+    void validateTokenSuccess_extractionOfSubjectFromToken() {
         JwtUtils jwtUtils = new JwtUtils();
         String token = jwtUtils.generateTokenFromUsername("user", accessTokenSecret, 1000000);
 

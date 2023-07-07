@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class AuthenticationTest {
+public class LoginTest {
     @Autowired
     private MockMvc mvc;
 
@@ -61,21 +61,6 @@ public class AuthenticationTest {
     }
 
     @Test
-    void loginSuccess() throws Exception {
-        LoginDto dto = new LoginDto("user", "password");
-
-        String jsonBody = objectMapper.writeValueAsString(dto);
-
-        mvc.perform(post("/api/auth/signin")
-                        .content(jsonBody)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.token").isString())
-                .andExpect(jsonPath("$.refreshToken").isString());
-    }
-
-    @Test
     void loginFailure_UsernameWrong() throws Exception {
         LoginDto dto = new LoginDto("wrongStudentName", "some_password");
 
@@ -92,8 +77,23 @@ public class AuthenticationTest {
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
-        mvc.perform(post("/api/auth/login")
+        mvc.perform(post("/api/auth/signin")
                         .content(jsonBody).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void loginSuccess() throws Exception {
+        LoginDto dto = new LoginDto("user", "password");
+
+        String jsonBody = objectMapper.writeValueAsString(dto);
+
+        mvc.perform(post("/api/auth/signin")
+                        .content(jsonBody)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.accessToken").isString())
+                .andExpect(jsonPath("$.refreshToken").isString());
     }
 }
