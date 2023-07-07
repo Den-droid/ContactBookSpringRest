@@ -76,7 +76,7 @@ public class TokenRefreshTest {
         JwtDto jwtDto = authenticationService.authenticateUser(loginDto);
 
         TokenRefreshRequestDto tokenRefreshRequestDto =
-                new TokenRefreshRequestDto(jwtDto.getRefreshToken());
+                new TokenRefreshRequestDto(jwtDto.refreshToken());
         String jsonBody = objectMapper.writeValueAsString(tokenRefreshRequestDto);
 
         mvc.perform(post("/api/auth/refreshToken")

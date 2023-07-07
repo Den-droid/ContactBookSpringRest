@@ -87,7 +87,7 @@ public class AuthenticationTest {
     }
 
     @Test
-    void loginFailure_LoginOk_But_PasswordWrong() throws Exception {
+    void loginFailure_LoginOk_PasswordWrong() throws Exception {
         LoginDto dto = new LoginDto("user", "some_wrong_password");
 
         String jsonBody = objectMapper.writeValueAsString(dto);

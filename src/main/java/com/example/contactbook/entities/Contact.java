@@ -12,7 +12,7 @@ public class Contact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "contact_name", length = 50)
+    @Column(name = "contact_name", length = 50, nullable = false)
     private String contactName;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

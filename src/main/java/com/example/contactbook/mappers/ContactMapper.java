@@ -7,7 +7,6 @@ import com.example.contactbook.exceptions.EmailFormatException;
 import com.example.contactbook.exceptions.PhoneNumberFormatException;
 import com.example.contactbook.validators.EmailValidator;
 import com.example.contactbook.validators.PhoneNumberValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
