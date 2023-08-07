@@ -1,9 +1,11 @@
 package com.example.contactbook.entities;
 
-import com.example.contactbook.exceptions.ContactException;
 import jakarta.persistence.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -29,8 +31,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Contact> contactList = new ArrayList<>();
 
     public User() {
@@ -92,59 +93,5 @@ public class User {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-
-    public void addContact(Contact contact) {
-        boolean notExists = contactList.stream()
-                .noneMatch(x -> x.getContactName().equals(contact.getContactName()));
-
-        if (notExists) {
-            contactList.add(contact);
-        } else {
-            throw new ContactException(contact.getContactName(),
-                    "Contact with such name already exists!");
-        }
-    }
-
-    public void editContact(Long id, Contact editedContact) {
-        Optional<Contact> contact = contactList.stream()
-                .filter(x -> x.getId().equals(id))
-                .findFirst();
-
-        if (contact.isPresent()) {
-            contact.get().setContactName(editedContact.getContactName());
-
-            contact.get().getEmails().clear();
-            contact.get().getEmails().addAll(editedContact.getEmails());
-
-            contact.get().getPhoneNumbers().clear();
-            contact.get().getPhoneNumbers().addAll(editedContact.getPhoneNumbers());
-        } else {
-            throw new ContactException(id, "Contact with such id doesn't exist!");
-        }
-    }
-
-    public void deleteContact(Long id) {
-        Optional<Contact> contact = contactList.stream()
-                .filter(x -> x.getId().equals(id))
-                .findFirst();
-
-        if (contact.isPresent()) {
-            contactList.remove(contact.get());
-        } else {
-            throw new ContactException(id, "Contact with such id doesn't exist!");
-        }
-    }
-
-    public void deleteContact(String contactName) {
-        Optional<Contact> contact = contactList.stream()
-                .filter(x -> x.getContactName().equals(contactName))
-                .findFirst();
-
-        if (contact.isPresent()) {
-            contactList.remove(contact.get());
-        } else {
-            throw new ContactException(contactName, "Contact with such name doesn't exist!");
-        }
     }
 }

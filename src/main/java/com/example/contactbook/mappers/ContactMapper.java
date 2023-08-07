@@ -1,9 +1,9 @@
 package com.example.contactbook.mappers;
 
+import com.example.contactbook.dto.ContactDto;
 import com.example.contactbook.entities.Contact;
 import com.example.contactbook.entities.Email;
 import com.example.contactbook.entities.PhoneNumber;
-import com.example.contactbook.exceptions.ContactException;
 import com.example.contactbook.exceptions.EmailFormatException;
 import com.example.contactbook.exceptions.PhoneNumberFormatException;
 import com.example.contactbook.validators.EmailValidator;
@@ -24,31 +24,40 @@ public class ContactMapper {
         this.emailValidator = emailValidator;
     }
 
-    public Contact mapContact(String contactName, List<String> emails, List<String> phoneNumbers) {
+    public Contact mapToContact(ContactDto dto) {
         Contact contact = new Contact();
 
-        if (contactName.isEmpty() || contactName.isBlank()) {
-            throw new ContactException(contactName, "Wrong contact name format!");
-        }
-
-        contact.setContactName(contactName);
-        contact.setEmails(emails.stream()
-                .filter(x -> {
-                    if (emailValidator.validateWhole(x))
+        contact.setContactName(dto.contactName());
+        contact.setEmails(dto.emails().stream()
+                .filter(email -> {
+                    if (emailValidator.validateWhole(email))
                         return true;
-                    else throw new EmailFormatException(x, "Bad format!");
+                    else throw new EmailFormatException(email, "Bad format!");
                 })
-                .map(Email::new)
+                .map(email -> new Email(email, contact))
                 .collect(Collectors.toSet()));
-        contact.setPhoneNumbers(phoneNumbers.stream()
-                .filter(x -> {
-                    if (phoneNumberValidator.validateWhole(x))
+        contact.setPhoneNumbers(dto.phoneNumbers().stream()
+                .filter(phoneNumber -> {
+                    if (phoneNumberValidator.validateWhole(phoneNumber))
                         return true;
-                    else throw new PhoneNumberFormatException(x, "Bad format");
+                    else throw new PhoneNumberFormatException(phoneNumber, "Bad format");
                 })
-                .map(PhoneNumber::new)
+                .map(phoneNumber -> new PhoneNumber(phoneNumber, contact))
                 .collect(Collectors.toSet()));
 
         return contact;
     }
+
+    public ContactDto mapFromContact(Contact contact) {
+        String name = contact.getContactName();
+        List<String> emails = contact.getEmails().stream()
+                .map(Email::getEmail)
+                .collect(Collectors.toList());
+        List<String> phoneNumbers = contact.getPhoneNumbers().stream()
+                .map(PhoneNumber::getPhoneNumber)
+                .collect(Collectors.toList());
+
+        return new ContactDto(name, emails, phoneNumbers);
+    }
+
 }

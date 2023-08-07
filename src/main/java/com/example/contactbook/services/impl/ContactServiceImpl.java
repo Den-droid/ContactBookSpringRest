@@ -1,17 +1,14 @@
 package com.example.contactbook.services.impl;
 
 import com.example.contactbook.dto.ContactDto;
-import com.example.contactbook.dto.MessageResponseDto;
 import com.example.contactbook.entities.Contact;
-import com.example.contactbook.entities.Email;
-import com.example.contactbook.entities.PhoneNumber;
 import com.example.contactbook.entities.User;
-import com.example.contactbook.exceptions.ContactException;
+import com.example.contactbook.exceptions.ContactAlreadyExistsException;
+import com.example.contactbook.exceptions.ContactNotFoundException;
 import com.example.contactbook.mappers.ContactMapper;
-import com.example.contactbook.repositories.UserRepository;
-import com.example.contactbook.security.user_details.UserDetailsImpl;
+import com.example.contactbook.repositories.ContactRepository;
+import com.example.contactbook.security.utils.SessionUtil;
 import com.example.contactbook.services.ContactService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,109 +16,83 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContactServiceImpl implements ContactService {
-    private final UserRepository userRepository;
+    private final ContactRepository contactRepository;
     private final ContactMapper contactMapper;
+    private final SessionUtil sessionUtil;
 
-    public ContactServiceImpl(UserRepository userRepository,
-                              ContactMapper contactMapper) {
-        this.userRepository = userRepository;
+    public ContactServiceImpl(ContactRepository contactRepository,
+                              ContactMapper contactMapper,
+                              SessionUtil sessionUtil) {
+        this.contactRepository = contactRepository;
         this.contactMapper = contactMapper;
+        this.sessionUtil = sessionUtil;
     }
 
     @Override
-    public MessageResponseDto add(ContactDto contactDto) {
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username).get();
+    public void add(ContactDto contactDto) {
+        User user = sessionUtil.getUserFromSession();
 
-        Contact contact = contactMapper.mapContact(
-                contactDto.contactName(),
-                contactDto.emails(),
-                contactDto.phoneNumbers()
-        );
-
-        user.addContact(contact);
-        userRepository.save(user);
-
-        return new MessageResponseDto("User added successfully!");
-    }
-
-    @Override
-    public MessageResponseDto edit(Long contactId, ContactDto contactDto) {
-        if (contactId < 1) {
-            throw new ContactException(contactId, "Contact id less than zero!");
+        if (contactRepository.existsByUserAndContactName(user, contactDto.contactName())) {
+            throw new ContactAlreadyExistsException(contactDto.contactName(),
+                    "Contact with such name already exists!");
         }
 
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username).get();
+        Contact contact = contactMapper.mapToContact(contactDto);
+        contact.setUser(user);
 
-        Contact editedContact = contactMapper.mapContact(
-                contactDto.contactName(),
-                contactDto.emails(),
-                contactDto.phoneNumbers()
-        );
-
-        user.editContact(contactId, editedContact);
-        userRepository.save(user);
-
-        return new MessageResponseDto("User edited successfully!");
+        contactRepository.save(contact);
     }
 
     @Override
-    public MessageResponseDto deleteById(Long contactId) {
-        if (contactId < 1) {
-            throw new ContactException(contactId, "Contact id less than zero!");
+    public void edit(Long contactId, ContactDto contactDto) {
+        User user = sessionUtil.getUserFromSession();
+
+        if (!contactRepository.existsByUserAndId(user, contactId)) {
+            throw new ContactNotFoundException(contactId, "Contact with such id doesn't exist!");
         }
 
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username).get();
+        if (contactRepository.
+                existsByUserAndContactNameAndIdNot(user, contactDto.contactName(), contactId)) {
+            throw new ContactAlreadyExistsException(contactDto.contactName(),
+                    "Contact with such name already exists!");
+        }
 
-        user.deleteContact(contactId);
-        userRepository.save(user);
+        Contact editedContact = contactMapper.mapToContact(contactDto);
+        editedContact.setId(contactId);
+        editedContact.setUser(user);
 
-        return new MessageResponseDto("User deleted successfully!");
+        contactRepository.save(editedContact);
     }
 
     @Override
-    public MessageResponseDto deleteByName(String contactName) {
-        if (contactName.isEmpty() || contactName.isBlank()) {
-            throw new ContactException(contactName, "Wrong contact name format!");
+    public void deleteById(Long contactId) {
+        User user = sessionUtil.getUserFromSession();
+
+        if (!contactRepository.existsByUserAndId(user, contactId)) {
+            throw new ContactNotFoundException(contactId, "Contact with such id doesn't exist!");
         }
 
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username).get();
+        contactRepository.deleteById(contactId);
+    }
 
-        user.deleteContact(contactName);
-        userRepository.save(user);
+    @Override
+    public void deleteByName(String contactName) {
+        User user = sessionUtil.getUserFromSession();
 
-        return new MessageResponseDto("User deleted successfully!");
+        Contact contact = contactRepository.findByUserAndContactName(user, contactName).orElseThrow(
+                () -> new ContactNotFoundException(contactName, "Contact with such name doesn't exist!"));
+
+        contactRepository.delete(contact);
     }
 
     @Override
     public List<ContactDto> getAll() {
-        UserDetailsImpl userDetails =
-                (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username).get();
+        User user = sessionUtil.getUserFromSession();
 
         List<Contact> contacts = user.getContactList();
 
         return contacts.stream()
-                .map(x -> new ContactDto(
-                        x.getContactName(),
-                        x.getEmails().stream()
-                                .map(Email::getEmail)
-                                .collect(Collectors.toList()),
-                        x.getPhoneNumbers().stream()
-                                .map(PhoneNumber::getPhoneNumber)
-                                .collect(Collectors.toList())))
+                .map(contactMapper::mapFromContact)
                 .collect(Collectors.toList());
     }
 }

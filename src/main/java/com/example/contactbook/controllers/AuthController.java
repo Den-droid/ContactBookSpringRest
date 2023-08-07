@@ -1,12 +1,9 @@
 package com.example.contactbook.controllers;
 
-import com.example.contactbook.dto.MessageResponseDto;
-import com.example.contactbook.dto.auth.JwtDto;
 import com.example.contactbook.dto.auth.LoginDto;
+import com.example.contactbook.dto.auth.RefreshTokenDto;
 import com.example.contactbook.dto.auth.SignupDto;
-import com.example.contactbook.dto.token_refresh.TokenRefreshRequestDto;
-import com.example.contactbook.dto.token_refresh.TokenRefreshResponseDto;
-import com.example.contactbook.exceptions.UserException;
+import com.example.contactbook.dto.auth.TokensDto;
 import com.example.contactbook.services.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,28 +22,20 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginDto loginDto) {
-        JwtDto jwtDto = authenticationService.authenticateUser(loginDto);
+        TokensDto jwtDto = authenticationService.authenticateUser(loginDto);
         return ResponseEntity.ok(jwtDto);
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupDto signUpDto) {
-        try {
-            MessageResponseDto messageResponseDto = authenticationService.registerUser(signUpDto);
-            return ResponseEntity.ok(messageResponseDto);
-        } catch (RuntimeException exception) {
-            return ResponseEntity.badRequest().body(new MessageResponseDto(exception.getMessage()));
-        }
+        authenticationService.registerUser(signUpDto);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
-        try {
-            TokenRefreshResponseDto tokenRefreshResponseDto =
-                    authenticationService.refreshToken(tokenRefreshRequestDto);
-            return ResponseEntity.ok(tokenRefreshResponseDto);
-        } catch (UserException e) {
-            return ResponseEntity.badRequest().body(new MessageResponseDto(e.getMessage()));
-        }
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
+        TokensDto tokensDto =
+                authenticationService.refreshToken(refreshTokenDto);
+        return ResponseEntity.ok(tokensDto);
     }
 }

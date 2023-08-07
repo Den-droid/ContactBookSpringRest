@@ -1,16 +1,15 @@
 package com.example.contactbook.services.impl;
 
-import com.example.contactbook.dto.MessageResponseDto;
-import com.example.contactbook.dto.auth.JwtDto;
 import com.example.contactbook.dto.auth.LoginDto;
 import com.example.contactbook.dto.auth.SignupDto;
-import com.example.contactbook.dto.token_refresh.TokenRefreshRequestDto;
-import com.example.contactbook.dto.token_refresh.TokenRefreshResponseDto;
+import com.example.contactbook.dto.auth.RefreshTokenDto;
+import com.example.contactbook.dto.auth.TokensDto;
 import com.example.contactbook.entities.Role;
 import com.example.contactbook.entities.User;
 import com.example.contactbook.entities.enums.EnumRole;
 import com.example.contactbook.exceptions.TokenRefreshException;
-import com.example.contactbook.exceptions.UserException;
+import com.example.contactbook.exceptions.UserAlreadyExistsException;
+import com.example.contactbook.exceptions.UserNotFoundException;
 import com.example.contactbook.mappers.UserMapper;
 import com.example.contactbook.repositories.RoleRepository;
 import com.example.contactbook.repositories.UserRepository;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -49,7 +47,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.jwtUtils = jwtUtils;
     }
 
-    public JwtDto authenticateUser(LoginDto loginDto) {
+    @Override
+    public TokensDto authenticateUser(LoginDto loginDto) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password()));
 
@@ -65,16 +64,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         userRepository.save(user);
 
-        return new JwtDto(accessToken, refreshToken, userDetails.getUsername());
+        return new TokensDto(accessToken, refreshToken);
     }
 
-    public MessageResponseDto registerUser(SignupDto signupDto) throws UserException {
+    @Override
+    public void registerUser(SignupDto signupDto) throws UserNotFoundException {
         if (userRepository.existsByUsername(signupDto.username())) {
-            throw new UserException(signupDto.username(), "User already exists!");
+            throw new UserAlreadyExistsException(signupDto.username(), "User already exists!");
         }
 
-        User user = userMapper.mapUser(signupDto.username(),
-                signupDto.email(), signupDto.password());
+        User user = userMapper.mapToUser(signupDto);
 
         Set<Role> roles = new HashSet<>();
 
@@ -83,28 +82,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         roles.add(userRole);
 
         user.setRoles(roles);
-        userRepository.save(user);
 
-        return new MessageResponseDto("User registered successfully!");
+        userRepository.save(user);
     }
 
-    public TokenRefreshResponseDto refreshToken(TokenRefreshRequestDto tokenRefreshRequestDto)
+    @Override
+    public TokensDto refreshToken(RefreshTokenDto refreshTokenDto)
             throws TokenRefreshException {
-        String requestRefreshToken = tokenRefreshRequestDto.refreshToken();
-
-        String username = jwtUtils.getUserNameFromRefreshToken(requestRefreshToken);
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-
-        if (optionalUser.isEmpty()) {
-            throw new TokenRefreshException(requestRefreshToken, "Refresh token is not in database!");
-        }
+        String requestRefreshToken = refreshTokenDto.refreshToken();
 
         if (!jwtUtils.validateRefreshToken(requestRefreshToken)) {
             throw new TokenRefreshException(requestRefreshToken, "Refresh token is invalid! " +
                     "Please sign in again to get new!");
         }
 
-        User user = optionalUser.get();
+        String username = jwtUtils.getUserNameFromRefreshToken(requestRefreshToken);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new TokenRefreshException(requestRefreshToken, "Refresh token is not in database!"));
 
         String accessToken = jwtUtils.generateAccessToken(user.getUsername());
         String refreshToken = jwtUtils.generateRefreshToken(user.getUsername());
@@ -112,6 +106,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        return new TokenRefreshResponseDto(accessToken, refreshToken);
+        return new TokensDto(accessToken, refreshToken);
     }
 }

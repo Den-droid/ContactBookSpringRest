@@ -12,6 +12,10 @@ public class PhoneNumber {
     @Column(length = 20, nullable = false)
     private String phoneNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contact_id", referencedColumnName = "id")
+    private Contact contact;
+
     public PhoneNumber() {
     }
 
@@ -23,12 +27,26 @@ public class PhoneNumber {
         this.phoneNumber = phoneNumber;
     }
 
+    public PhoneNumber(String phoneNumber, Contact contact) {
+        this.phoneNumber = phoneNumber;
+        this.contact = contact;
+    }
+
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 
     @Override

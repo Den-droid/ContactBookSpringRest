@@ -12,11 +12,20 @@ public class Email {
     @Column(length = 75, nullable = false)
     private String email;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contact_id", referencedColumnName = "id")
+    private Contact contact;
+
     public Email() {
     }
 
     public Email(String email) {
         this.email = email;
+    }
+
+    public Email(String email, Contact contact) {
+        this.email = email;
+        this.contact = contact;
     }
 
     public Long getId() {
@@ -29,6 +38,14 @@ public class Email {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 
     @Override

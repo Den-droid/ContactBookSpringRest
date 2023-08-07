@@ -1,5 +1,6 @@
 package com.example.contactbook.mappers;
 
+import com.example.contactbook.dto.auth.SignupDto;
 import com.example.contactbook.entities.User;
 import com.example.contactbook.exceptions.EmailFormatException;
 import com.example.contactbook.validators.EmailValidator;
@@ -17,17 +18,17 @@ public class UserMapper {
         this.encoder = encoder;
     }
 
-    public User mapUser(String username, String email, String password) {
+    public User mapToUser(SignupDto dto) {
         User user = new User();
 
-        user.setUsername(username);
+        user.setUsername(dto.username());
 
-        if (!emailValidator.validateWhole(email)) {
-            throw new EmailFormatException(email, "Bad format!");
+        if (!emailValidator.validateWhole(dto.email())) {
+            throw new EmailFormatException(dto.email(), "Bad format!");
         }
 
-        user.setEmail(email);
-        user.setPassword(encoder.encode(password));
+        user.setEmail(dto.email());
+        user.setPassword(encoder.encode(dto.password()));
 
         return user;
     }

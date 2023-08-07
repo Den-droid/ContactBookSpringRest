@@ -1,18 +1,18 @@
 package com.example.contactbook.services;
 
 import com.example.contactbook.dto.ContactDto;
-import com.example.contactbook.dto.MessageResponseDto;
+import com.example.contactbook.entities.Contact;
 
 import java.util.List;
 
 public interface ContactService {
-    MessageResponseDto add(ContactDto contactDto);
+    void add(ContactDto contactDto);
 
-    MessageResponseDto edit(Long id, ContactDto contactDto);
+    void edit(Long id, ContactDto contactDto);
 
-    MessageResponseDto deleteById(Long contactId);
+    void deleteById(Long contactId);
 
-    MessageResponseDto deleteByName(String contactName);
+    void deleteByName(String contactName);
 
     List<ContactDto> getAll();
 }

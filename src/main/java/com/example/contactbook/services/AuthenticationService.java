@@ -1,16 +1,15 @@
 package com.example.contactbook.services;
 
-import com.example.contactbook.dto.MessageResponseDto;
-import com.example.contactbook.dto.auth.JwtDto;
 import com.example.contactbook.dto.auth.LoginDto;
 import com.example.contactbook.dto.auth.SignupDto;
-import com.example.contactbook.dto.token_refresh.TokenRefreshRequestDto;
-import com.example.contactbook.dto.token_refresh.TokenRefreshResponseDto;
+import com.example.contactbook.dto.auth.RefreshTokenDto;
+import com.example.contactbook.dto.auth.TokensDto;
+import com.example.contactbook.entities.User;
 
 public interface AuthenticationService {
-    JwtDto authenticateUser(LoginDto loginDto);
+    TokensDto authenticateUser(LoginDto loginDto);
 
-    MessageResponseDto registerUser(SignupDto signupDto);
+    void registerUser(SignupDto signupDto);
 
-    TokenRefreshResponseDto refreshToken(TokenRefreshRequestDto tokenRefreshRequestDto);
+    TokensDto refreshToken(RefreshTokenDto refreshTokenDto);
 }

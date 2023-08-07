@@ -19,17 +19,17 @@ public class PhoneNumberValidator {
     public boolean validateWhole(String number) {
         boolean validFormat = number.matches(regex);
 
-        if (validFormat) {
-            RestTemplate restTemplate = new RestTemplate();
-            String requestUrl = baseUrl + validationApiKey +
-                    "&number=" + number + "&country_code=&format=1";
-
-            Map<String, Object> res = restTemplate.getForObject(requestUrl, Map.class);
-
-            if (res != null && res.containsKey("valid")) {
-                return (boolean) res.getOrDefault("valid", false);
-            }
-        }
+//        if (validFormat) {
+//            RestTemplate restTemplate = new RestTemplate();
+//            String requestUrl = baseUrl + validationApiKey +
+//                    "&number=" + number + "&country_code=&format=1";
+//
+//            Map<String, Object> res = restTemplate.getForObject(requestUrl, Map.class);
+//
+//            if (res != null && res.containsKey("valid")) {
+//                return (boolean) res.getOrDefault("valid", false);
+//            }
+//        }
 
         return validFormat;
     }
